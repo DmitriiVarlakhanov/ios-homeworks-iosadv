@@ -58,6 +58,28 @@ class MapViewController: UIViewController {
         return buttonToDeleteAllAnnotations
     }()
 
+    private lazy var buttonToSetupRoute: UIButton = {
+        let buttonToSetupRoute = UIButton(type: .system)
+
+        buttonToSetupRoute.translatesAutoresizingMaskIntoConstraints = false
+
+        buttonToSetupRoute.setTitle("Build route", for: .normal)
+        buttonToSetupRoute.backgroundColor = .white
+        buttonToSetupRoute.setTitleColor(.black, for: .normal)
+
+        buttonToSetupRoute.layer.cornerRadius = 8
+        buttonToSetupRoute.layer.borderWidth = 1
+        buttonToSetupRoute.layer.borderColor = UIColor.black.cgColor
+
+        buttonToSetupRoute.addTarget(
+            self,
+            action: #selector(buttonToSetupRouteTapped),
+            for: .touchUpInside
+        )
+
+        return buttonToSetupRoute
+    }()
+
     private let locationManager = CLLocationManager()
 
     // MARK: - Lifecycle
@@ -71,13 +93,50 @@ class MapViewController: UIViewController {
         self.setupConstraints()
         self.setupLocationManager()
         self.setupMKPoints()
-        self.setupRoute()
     }
 
     // MARK: - Actions
 
     @objc private func buttonToDeleteAllAnnotationsTapped() {
         self.mapView.removeAnnotations(mapView.annotations)
+    }
+
+    @objc private func buttonToSetupRouteTapped() {
+        if let userLocation = self.locationManager.location?.coordinate {
+            let destination = CLLocationCoordinate2D(latitude: 55.7843, longitude: 49.1198)
+
+            let request = MKDirections.Request()
+
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: userLocation))
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
+
+            let directions = MKDirections(request: request)
+
+            directions.calculate { response, error in
+                if let error = error {
+                    print(error.localizedDescription)
+
+                    return
+                }
+
+                self.mapView.addOverlay(response!.routes.first!.polyline)
+            }
+        } else {
+            let alertController = UIAlertController(
+                title: "Error building route",
+                message: "Please allow access to location services in settings",
+                preferredStyle: .alert
+            )
+
+            let action = UIAlertAction(
+                title: "Ok",
+                style: .cancel
+            )
+
+            alertController.addAction(action)
+
+            self.present(alertController, animated: true)
+        }
     }
 
     // MARK: - Private
@@ -97,6 +156,7 @@ class MapViewController: UIViewController {
     private func addSubviews() {
         self.view.addSubview(mapView)
         self.view.addSubview(buttonToDeleteAllAnnotations)
+        self.view.addSubview(buttonToSetupRoute)
     }
 
     private func setupConstraints() {
@@ -108,10 +168,15 @@ class MapViewController: UIViewController {
             mapView.trailingAnchor.constraint(equalTo: safeAreaGuide.trailingAnchor),
             mapView.bottomAnchor.constraint(equalTo: safeAreaGuide.bottomAnchor),
 
-            buttonToDeleteAllAnnotations.centerXAnchor.constraint(equalTo: safeAreaGuide.centerXAnchor),
+            buttonToDeleteAllAnnotations.leftAnchor.constraint(equalTo: safeAreaGuide.leftAnchor, constant: 30),
             buttonToDeleteAllAnnotations.bottomAnchor.constraint(equalTo: safeAreaGuide.bottomAnchor, constant: -50),
-            buttonToDeleteAllAnnotations.widthAnchor.constraint(equalToConstant: 300),
-            buttonToDeleteAllAnnotations.heightAnchor.constraint(equalToConstant: 50)
+            buttonToDeleteAllAnnotations.widthAnchor.constraint(equalToConstant: 160),
+            buttonToDeleteAllAnnotations.heightAnchor.constraint(equalToConstant: 50),
+
+            buttonToSetupRoute.rightAnchor.constraint(equalTo: safeAreaGuide.rightAnchor, constant: -30),
+            buttonToSetupRoute.bottomAnchor.constraint(equalTo: safeAreaGuide.bottomAnchor, constant: -50),
+            buttonToSetupRoute.widthAnchor.constraint(equalToConstant: 160),
+            buttonToSetupRoute.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
 
@@ -136,29 +201,6 @@ class MapViewController: UIViewController {
 
         self.mapView.addAnnotation(saintPetersburgAnnotation)
         self.mapView.addAnnotation(serpukhovAnnotation)
-    }
-
-    private func setupRoute() {
-        let userLocation = self.locationManager.location?.coordinate
-
-        let destination = CLLocationCoordinate2D(latitude: 55.7843, longitude: 49.1198)
-
-        let request = MKDirections.Request()
-
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: userLocation!))
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
-
-        let directions = MKDirections(request: request)
-
-        directions.calculate { response, error in
-            if let error = error {
-                print(error.localizedDescription)
-
-                return
-            }
-
-            self.mapView.addOverlay(response!.routes.first!.polyline)
-        }
     }
 }
 
