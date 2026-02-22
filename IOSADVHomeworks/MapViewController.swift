@@ -33,6 +33,12 @@ class MapViewController: UIViewController {
             mapView.preferredConfiguration = configuration
         }
 
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapGestureRecognizerTapped(gestureRecognizer:)))
+
+        gestureRecognizer.numberOfTapsRequired = 1
+
+        mapView.addGestureRecognizer(gestureRecognizer)
+
         return mapView
     }()
 
@@ -41,7 +47,7 @@ class MapViewController: UIViewController {
 
         buttonToDeleteAllAnnotations.translatesAutoresizingMaskIntoConstraints = false
 
-        buttonToDeleteAllAnnotations.setTitle("Delete all annotations", for: .normal)
+        buttonToDeleteAllAnnotations.setTitle("Delete destination", for: .normal)
         buttonToDeleteAllAnnotations.backgroundColor = .white
         buttonToDeleteAllAnnotations.setTitleColor(.black, for: .normal)
 
@@ -92,34 +98,49 @@ class MapViewController: UIViewController {
         self.addSubviews()
         self.setupConstraints()
         self.setupLocationManager()
-        self.setupMKPoints()
     }
 
     // MARK: - Actions
 
     @objc private func buttonToDeleteAllAnnotationsTapped() {
         self.mapView.removeAnnotations(mapView.annotations)
+
+        self.mapView.removeOverlays(self.mapView.overlays)
     }
 
     @objc private func buttonToSetupRouteTapped() {
+        var destination = self.locationManager.location?.coordinate
+
+        for annotation in self.mapView.annotations {
+            if let annotation = annotation as? MKPointAnnotation {
+                destination = annotation.coordinate
+            } else {
+                continue
+            }
+        }
+
         if let userLocation = self.locationManager.location?.coordinate {
-            let destination = CLLocationCoordinate2D(latitude: 55.7843, longitude: 49.1198)
+            if destination?.latitude == userLocation.latitude && destination?.longitude == userLocation.longitude {
+                return
+            } else {
+                let request = MKDirections.Request()
 
-            let request = MKDirections.Request()
+                request.source = MKMapItem(placemark: MKPlacemark(coordinate: userLocation))
+                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination!))
 
-            request.source = MKMapItem(placemark: MKPlacemark(coordinate: userLocation))
-            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
+                let directions = MKDirections(request: request)
 
-            let directions = MKDirections(request: request)
+                directions.calculate { response, error in
+                    if let error = error {
+                        print(error.localizedDescription)
 
-            directions.calculate { response, error in
-                if let error = error {
-                    print(error.localizedDescription)
+                        return
+                    }
 
-                    return
+                    self.mapView.addOverlay(response!.routes.first!.polyline)
+
+                    self.mapView.setVisibleMapRect(response!.routes.first!.polyline.boundingMapRect, animated: true)
                 }
-
-                self.mapView.addOverlay(response!.routes.first!.polyline)
             }
         } else {
             let alertController = UIAlertController(
@@ -137,6 +158,23 @@ class MapViewController: UIViewController {
 
             self.present(alertController, animated: true)
         }
+    }
+
+    @objc private func tapGestureRecognizerTapped(gestureRecognizer: UITapGestureRecognizer) {
+        let coordinateOnMapView = gestureRecognizer.location(in: self.mapView)
+
+        let geographicCoordinates = self.mapView.convert(coordinateOnMapView, toCoordinateFrom: self.mapView)
+
+        let specificAnnotation = MKPointAnnotation()
+
+        specificAnnotation.coordinate = geographicCoordinates
+        specificAnnotation.title = "Destination"
+
+        self.mapView.removeOverlays(self.mapView.overlays)
+
+        self.mapView.removeAnnotations(mapView.annotations)
+
+        self.mapView.addAnnotation(specificAnnotation)
     }
 
     // MARK: - Private
@@ -187,21 +225,6 @@ class MapViewController: UIViewController {
 
         self.locationManager.startUpdatingLocation()
     }
-
-    private func setupMKPoints() {
-        let saintPetersburgAnnotation = MKPointAnnotation()
-
-        saintPetersburgAnnotation.coordinate = CLLocationCoordinate2D(latitude: 59.9385, longitude: 30.3125)
-        saintPetersburgAnnotation.title = "St.Peterburg"
-
-        let serpukhovAnnotation = MKPointAnnotation()
-
-        serpukhovAnnotation.coordinate = CLLocationCoordinate2D(latitude: 54.9166, longitude: 37.4000)
-        serpukhovAnnotation.title = "Serpukhov"
-
-        self.mapView.addAnnotation(saintPetersburgAnnotation)
-        self.mapView.addAnnotation(serpukhovAnnotation)
-    }
 }
 
     // MARK: - Extensions
@@ -209,6 +232,8 @@ class MapViewController: UIViewController {
 extension MapViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         print(locations.last?.coordinate)
+
+        self.mapView.setRegion(MKCoordinateRegion(center: self.locationManager.location!.coordinate, latitudinalMeters: 10000, longitudinalMeters: 10000), animated: true)
     }
 }
 
