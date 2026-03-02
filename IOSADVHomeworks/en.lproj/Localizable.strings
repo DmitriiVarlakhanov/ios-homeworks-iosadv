@@ -1,0 +1,18 @@
+/* 
+  Localizable.strings
+  IOSADVHomeworks
+
+  Created by Dmitrii Varlakhanov on 2/28/26.
+  
+*/
+
+
+"buttonToDeleteAllAnnotationsLocalizationKey" = "Delete destination";
+"buttonToSetupRouteLocalizationKey" = "Build route";
+"alertControllerTitleLocalizationKey" = "Error building route";
+"alertControllerMessageLocalizationKey" = "Please allow access to location services in settings";
+"alertActionTitleLocalizationKey" = "Ok";
+"specificAnnotationTitleLocalizationKey" = "Destination";
+"tabBarItemTitleLocalizationKey" = "Map";
+
+

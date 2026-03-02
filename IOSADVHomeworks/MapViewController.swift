@@ -47,7 +47,10 @@ class MapViewController: UIViewController {
 
         buttonToDeleteAllAnnotations.translatesAutoresizingMaskIntoConstraints = false
 
-        buttonToDeleteAllAnnotations.setTitle("Delete destination", for: .normal)
+        buttonToDeleteAllAnnotations.setTitle(
+            NSLocalizedString("buttonToDeleteAllAnnotationsLocalizationKey", comment: ""),
+            for: .normal
+        )
         buttonToDeleteAllAnnotations.backgroundColor = .white
         buttonToDeleteAllAnnotations.setTitleColor(.black, for: .normal)
 
@@ -69,7 +72,10 @@ class MapViewController: UIViewController {
 
         buttonToSetupRoute.translatesAutoresizingMaskIntoConstraints = false
 
-        buttonToSetupRoute.setTitle("Build route", for: .normal)
+        buttonToSetupRoute.setTitle(
+            NSLocalizedString("buttonToSetupRouteLocalizationKey", comment: ""),
+            for: .normal
+        )
         buttonToSetupRoute.backgroundColor = .white
         buttonToSetupRoute.setTitleColor(.black, for: .normal)
 
@@ -144,13 +150,13 @@ class MapViewController: UIViewController {
             }
         } else {
             let alertController = UIAlertController(
-                title: "Error building route",
-                message: "Please allow access to location services in settings",
+                title: NSLocalizedString("alertControllerTitleLocalizationKey", comment: ""),
+                message: NSLocalizedString("alertControllerMessageLocalizationKey", comment: ""),
                 preferredStyle: .alert
             )
 
             let action = UIAlertAction(
-                title: "Ok",
+                title: NSLocalizedString("alertActionTitleLocalizationKey", comment: ""),
                 style: .cancel
             )
 
@@ -168,7 +174,10 @@ class MapViewController: UIViewController {
         let specificAnnotation = MKPointAnnotation()
 
         specificAnnotation.coordinate = geographicCoordinates
-        specificAnnotation.title = "Destination"
+        specificAnnotation.title = NSLocalizedString(
+            "specificAnnotationTitleLocalizationKey",
+            comment: ""
+        )
 
         self.mapView.removeOverlays(self.mapView.overlays)
 
@@ -185,7 +194,7 @@ class MapViewController: UIViewController {
 
     private func setupTabBarItem() {
         self.tabBarItem = UITabBarItem(
-            title: "Map",
+            title: NSLocalizedString("tabBarItemTitleLocalizationKey", comment: ""),
             image: UIImage(systemName: "mappin.circle"),
             tag: 0
         )
