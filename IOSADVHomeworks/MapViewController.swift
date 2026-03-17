@@ -51,12 +51,17 @@ class MapViewController: UIViewController {
             NSLocalizedString("buttonToDeleteAllAnnotationsLocalizationKey", comment: ""),
             for: .normal
         )
-        buttonToDeleteAllAnnotations.backgroundColor = .white
-        buttonToDeleteAllAnnotations.setTitleColor(.black, for: .normal)
+        //buttonToDeleteAllAnnotations.backgroundColor = .white
+        buttonToDeleteAllAnnotations.setTitleColor(.label, for: .normal)
 
         buttonToDeleteAllAnnotations.layer.cornerRadius = 8
         buttonToDeleteAllAnnotations.layer.borderWidth = 1
         buttonToDeleteAllAnnotations.layer.borderColor = UIColor.black.cgColor
+
+        buttonToDeleteAllAnnotations.backgroundColor = UIColor.createColorTemplateFunction(
+            lightMode: .white,
+            darkMode: .black
+        )
 
         buttonToDeleteAllAnnotations.addTarget(
             self,
@@ -76,12 +81,18 @@ class MapViewController: UIViewController {
             NSLocalizedString("buttonToSetupRouteLocalizationKey", comment: ""),
             for: .normal
         )
-        buttonToSetupRoute.backgroundColor = .white
-        buttonToSetupRoute.setTitleColor(.black, for: .normal)
+        buttonToSetupRoute.setTitleColor(.label, for: .normal)
 
         buttonToSetupRoute.layer.cornerRadius = 8
         buttonToSetupRoute.layer.borderWidth = 1
         buttonToSetupRoute.layer.borderColor = UIColor.black.cgColor
+
+        buttonToSetupRoute.backgroundColor = UIColor.createColorTemplateFunction(
+            lightMode: .white,
+            darkMode: .black
+        )
+
+        print(self)
 
         buttonToSetupRoute.addTarget(
             self,
@@ -257,5 +268,20 @@ extension MapViewController: MKMapViewDelegate {
             return renderer
         }
         return MKOverlayRenderer(overlay: overlay)
+    }
+}
+
+extension UIColor {
+    static func createColorTemplateFunction(lightMode: UIColor, darkMode: UIColor) -> UIColor {
+        guard #available(iOS 13.0, *) else {
+            return lightMode
+        }
+        return UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return darkMode
+            } else {
+                return lightMode
+            }
+        }
     }
 }
