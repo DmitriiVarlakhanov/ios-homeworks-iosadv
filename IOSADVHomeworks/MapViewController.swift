@@ -51,7 +51,6 @@ class MapViewController: UIViewController {
             NSLocalizedString("buttonToDeleteAllAnnotationsLocalizationKey", comment: ""),
             for: .normal
         )
-        //buttonToDeleteAllAnnotations.backgroundColor = .white
         buttonToDeleteAllAnnotations.setTitleColor(.label, for: .normal)
 
         buttonToDeleteAllAnnotations.layer.cornerRadius = 8
