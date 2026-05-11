@@ -39,7 +39,13 @@ class LocalAuthenticationService {
 
                     let mapNavigationController = UINavigationController(rootViewController: MapViewController())
 
-                    tabBarController.viewControllers = [mapNavigationController]
+                    let dragAndDropViewController = UINavigationController(rootViewController: DragAndDropViewController())
+
+                    let tabBarItem = UITabBarItem(title: "Drag and Drop", image: UIImage(systemName: "hand.draw"), tag: 0)
+
+                    dragAndDropViewController.tabBarItem = tabBarItem
+
+                    tabBarController.viewControllers = [mapNavigationController, dragAndDropViewController]
 
                     guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                           let window = windowScene.windows.first(where: { $0.isKeyWindow }) else {
